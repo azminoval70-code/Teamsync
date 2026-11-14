@@ -1,0 +1,1760 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102640" />
+    <meta
+      name="description"
+      content="Teamsync membantu mahasiswa mengelola tugas kelompok, deadline waktu, dan kolaborasi dalam satu ruang kerja."
+    />
+    <title>Teamsync | Ruang Kerja Kelompok</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=lecturer-monitoring-20261030a" />
+    <link rel="icon" type="image/png" href="assets/teamsync_icon.png" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="app.js?v=lecturer-monitoring-20261030a" defer></script>
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <section v-if="!isLoggedIn" class="auth-shell">
+        <div class="auth-brand">
+          <a class="brand-lockup" href="#" @click.prevent="authPage = 'landing'"
+            ><span class="brand-mark">t</span
+            ><span>teamsync<span class="brand-dot">.</span></span></a
+          >
+          <span class="auth-top-note">RUANG KERJA KOLABORATIF</span>
+        </div>
+        <div v-if="authPage === 'landing'" class="welcome-layout">
+          <div class="welcome-copy">
+            <div class="eyebrow">
+              <span class="eyebrow-line"></span> KOLABORASI YANG LEBIH TERARAH
+            </div>
+            <h1>Kerja kelompok<br />jadi <em>lebih ringan.</em></h1>
+            <p class="welcome-lead">
+              Satu ruang untuk membagi tugas, menjaga progres, dan menyelesaikan
+              proyek bersama, di mana pun tim Anda berada.
+            </p>
+            <div class="welcome-actions">
+              <button
+                class="button button-primary button-large"
+                @click="openAuth('Mahasiswa', 'register')"
+              >
+                Buat akun gratis <span aria-hidden="true">→</span></button
+              ><button class="button button-quiet" @click="openAuth('Mahasiswa', 'login')">
+                Saya sudah punya akun
+              </button>
+            </div>
+            <div class="welcome-proof">
+              <div class="avatar-stack">
+                <span>A</span><span>F</span><span>M</span><span>+2</span>
+              </div>
+              <span>Dibuat untuk kerja kelompok mahasiswa</span>
+            </div>
+          </div>
+          <div
+            class="welcome-art"
+            aria-label="Contoh tampilan ringkasan pekerjaan kelompok"
+          >
+            <div class="art-orbit orbit-one"></div>
+            <div class="art-orbit orbit-two"></div>
+            <div class="preview-card">
+              <div class="preview-top">
+                <div>
+                  <span class="preview-kicker">RUANG KELOMPOK</span>
+                  <h3>Capstone Project</h3>
+                </div>
+                <span class="preview-menu">•••</span>
+              </div>
+              <div class="preview-progress-label">
+                <span>Progres tim</span><strong>68%</strong>
+              </div>
+              <div class="progress-track"><span style="width: 68%"></span></div>
+              <div class="preview-task">
+                <span class="task-check done">✓</span
+                ><span
+                  ><strong>Analisis kebutuhan</strong
+                  ><small>Azmi Noval · Selesai</small></span
+                ><span class="preview-state state-done">Selesai</span>
+              </div>
+              <div class="preview-task">
+                <span class="task-check active">↗</span
+                ><span
+                  ><strong>Rancangan antarmuka</strong
+                  ><small>Fitri Susanti · Dikerjakan</small></span
+                ><span class="preview-state state-active">Berjalan</span>
+              </div>
+              <div class="preview-task">
+                <span class="task-check">◷</span
+                ><span
+                  ><strong>Dokumentasi sistem</strong
+                  ><small>Wahyu Hidayatullah · 2 hari lagi</small></span
+                ><span class="preview-state state-todo">Terjadwal</span>
+              </div>
+              <div class="preview-footer">
+                <div class="avatar-stack small">
+                  <span>A</span><span>F</span><span>W</span><span>+2</span>
+                </div>
+                <span>5 anggota aktif</span
+                ><span class="preview-foot-icon">✦</span>
+              </div>
+            </div>
+            <div class="floating-note">
+              <span class="note-icon">◷</span
+              ><span
+                ><strong>Deadline mendekat</strong
+                ><small>Presentasi · Besok</small></span
+              >
+            </div>
+            <div class="floating-stamp">TS<span>+</span></div>
+          </div>
+          <div class="welcome-bottom">
+            <span>KELOLA DENGAN TENANG. SELESAIKAN BERSAMA.</span
+            ><span>© 2026 TEAMSYNC - KELOMPOK B | UNIVERSITAS TERBUKA</span>
+          </div>
+        </div>
+        <div v-else class="auth-form-wrap">
+          <button class="back-link" @click="authPage = 'landing'">
+            ← Kembali ke beranda
+          </button>
+          <div class="auth-card">
+            <div class="auth-role-tabs" role="tablist" aria-label="Jenis akun">
+              <button type="button" role="tab" :aria-selected="authRole === 'Mahasiswa'" :class="{ active: authRole === 'Mahasiswa' }" @click="selectAuthRole('Mahasiswa')">Mahasiswa</button>
+              <button type="button" role="tab" :aria-selected="authRole === 'Dosen'" :class="{ active: authRole === 'Dosen' }" @click="selectAuthRole('Dosen')">Dosen</button>
+              <button type="button" role="tab" :aria-selected="authRole === 'Admin'" :class="{ active: authRole === 'Admin' }" @click="selectAuthRole('Admin')">Admin</button>
+            </div>
+            <span class="auth-eyebrow">{{ authEyebrow }}</span>
+            <h1>{{ authTitle }}</h1>
+            <p class="muted">{{ authDescription }}</p>
+            <form
+              @submit.prevent="authPage === 'login' ? handleLogin() : handleRegister()"
+            >
+              <label v-if="authPage === 'register'"
+                >Nama lengkap<input
+                  v-model.trim="registerForm.nama"
+                  autocomplete="name"
+                  placeholder="Contoh: Azmi Noval"
+                  required /></label
+              ><label v-if="authPage === 'login'"
+                >Email<input
+                  v-model.trim="loginForm.email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="nama@email.com"
+                  required /></label
+              ><label v-else
+                >Email<input
+                  v-model.trim="registerForm.email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="nama@email.com"
+                  required /></label
+              ><label v-if="authPage === 'login'"
+                >Kata sandi<input
+                  v-model="loginForm.password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Minimal 6 karakter"
+                  minlength="6"
+                  required /></label
+              ><label v-else
+                >Kata sandi<input
+                  v-model="registerForm.password"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Minimal 6 karakter"
+                  minlength="6"
+                  required /></label
+              ><button class="button button-primary button-full" type="submit">
+                {{ authSubmitLabel }}
+                <span>→</span>
+              </button>
+            </form>
+            <div v-if="showAuthSwitch" class="auth-switch">
+              {{ authPrompt }}
+              <button
+                @click="switchAuthMode"
+              >
+                {{ authSwitchLabel }}
+              </button>
+            </div>
+            <div v-if="authRole === 'Mahasiswa'" class="auth-divider"><span>atau coba demo</span></div>
+            <div v-if="authRole === 'Admin'" class="auth-divider"><span>pratinjau lokal</span></div>
+            <div v-if="authRole === 'Mahasiswa' || authRole === 'Admin'" class="demo-buttons demo-buttons-single">
+              <button v-if="authRole === 'Admin'" @click="loginDemo('Admin')">
+                <span>A</span> Demo admin lokal
+              </button>
+              <button v-if="authRole === 'Mahasiswa'" @click="loginDemo('Mahasiswa')">
+                <span>↗</span> Demo mahasiswa</button
+              >
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="toast"
+          class="toast auth-toast"
+          :class="'toast-' + toast.type"
+        >
+          {{ toast.message }}
+        </div>
+      </section>
+
+      <div v-else class="app-shell">
+        <aside class="sidebar" :class="{ 'sidebar-open': mobileMenuOpen }">
+          <a
+            class="brand-lockup sidebar-brand"
+            href="#"
+            @click.prevent="goTo(user.role === 'Admin' ? 'admin-dashboard' : user.role === 'Dosen' ? 'lecturer' : 'overview')"
+            ><span class="brand-mark">t</span
+            ><span>teamsync<span class="brand-dot">.</span></span></a
+          >
+          <div v-if="user.role === 'Mahasiswa'" class="workspace-switch">
+            <div class="workspace-avatar">{{ group ? initials(group.nama_kelompok) : 'K' }}</div>
+            <span
+              ><strong>{{ group?.nama_kelompok || 'Pilih kelompok' }}</strong
+              ><small>{{ group?.kode_matkul || 'Ruang kerja Teamsync' }} · {{ group?.jumlah_anggota || 0 }} anggota</small></span
+            ><span class="switch-chevron">⌄</span>
+          </div>
+          <div v-else-if="user.role === 'Dosen'" class="workspace-switch lecturer-workspace">
+            <div class="workspace-avatar">D</div>
+            <span><strong>Pemantauan kelas</strong><small>{{ lecturerCourseCount }} mata kuliah &middot; {{ lecturerGroups.length }} kelompok</small></span>
+          </div>
+          <div v-else class="workspace-switch admin-workspace">
+            <div class="workspace-avatar">A</div>
+            <span><strong>Administrasi</strong><small>Teamsync</small></span>
+          </div>
+          <div class="sidebar-label">
+            {{ user.role === 'Admin' ? 'ADMINISTRASI' : user.role === 'Dosen' ? 'PEMANTAUAN' : 'RUANG KERJA' }}
+          </div>
+          <nav class="side-nav" aria-label="Navigasi utama">
+            <button
+              v-for="item in visibleNav"
+              :key="item.id"
+              :class="{ active: currentView === item.id }"
+              @click="goTo(item.id)"
+            >
+              <span class="nav-icon">{{ item.icon }}</span>{{ item.label }}<span
+                v-if="item.id === 'tasks' && overdueCount"
+                class="nav-count"
+                >{{ overdueCount }}</span
+              >
+            </button>
+          </nav>
+          <div v-if="user.role === 'Mahasiswa'" class="sidebar-label group-label">
+            TIM SAYA
+            <button v-if="!group" title="Buat kelompok baru" @click="openGroupModal">
+              +
+            </button>
+          </div>
+          <button v-if="user.role === 'Mahasiswa' && group" class="group-link active-group" @click="goTo('group')">
+            <span class="group-color"></span> {{ group.nama_kelompok }}
+            <span class="group-people">{{ group.jumlah_anggota }}</span>
+          </button>
+          <button v-if="user.role === 'Mahasiswa' && !group" class="group-link muted-group" @click="openGroupModal">
+            <span class="group-add">+</span> Gabung / buat kelompok
+          </button>
+          <div class="sidebar-spacer"></div>
+          <div v-if="user.role === 'Mahasiswa'" class="sidebar-help">
+            <div class="help-spark">✦</div>
+            <strong>Kerja tim lebih rapi</strong>
+            <p>Semua tugas dan kabar kelompok tersimpan di satu tempat.</p>
+            <button @click="goTo('announcements')">
+              Lihat pengumuman <span>→</span>
+            </button>
+          </div>
+          <button class="profile-menu" @click="profileOpen = !profileOpen">
+            <span class="profile-avatar">{{ initials(user.nama) }}</span
+            ><span class="profile-name"
+              ><strong>{{ user.nama }}</strong
+              ><small
+                >{{ user.role }} · {{ user.nim || 'Anggota' }}</small
+              ></span
+            ><span class="profile-more">•••</span>
+          </button>
+        </aside>
+        <div
+          v-if="mobileMenuOpen"
+          class="mobile-scrim"
+          @click="mobileMenuOpen = false"
+        ></div>
+        <main class="main-area">
+          <header class="topbar">
+            <button
+              class="mobile-menu-button"
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              aria-label="Buka menu"
+            >
+              ☰
+            </button>
+            <div class="breadcrumbs">
+              <span>{{ user.role === 'Admin' ? 'Administrasi' : user.role === 'Dosen' ? 'Kelas yang diajar' : (group?.nama_kelompok || 'Ruang kerja') }}</span><b>/</b><strong>{{ pageTitle }}</strong>
+            </div>
+            <div class="topbar-actions">
+              <label class="search-box"
+                ><span>⌕</span
+                ><input
+                  v-model.trim="searchQuery"
+                  placeholder="Cari tugas..."
+                /><kbd>⌘ K</kbd></label
+              ><button
+                class="icon-button notification-button"
+                aria-label="Notifikasi"
+                @click="notificationsOpen = !notificationsOpen"
+              >
+                ♧<i v-if="upcomingCount"></i></button
+              ><button class="top-avatar" @click="profileOpen = !profileOpen">
+                {{ initials(user.nama) }}
+              </button>
+            </div>
+            <div v-if="notificationsOpen" class="popover notifications-popover">
+              <div class="popover-head">
+                <strong>Pengingat</strong
+                ><button @click="notificationsOpen = false">×</button>
+              </div>
+              <template v-if="upcomingTasks.length"
+                ><div
+                  v-for="t in upcomingTasks.slice(0, 4)"
+                  :key="t.id"
+                  class="notification-item"
+                >
+                  <span class="notification-dot"></span
+                  ><span
+                    ><strong>{{ t.judul }}</strong
+                    ><small
+                      >Deadline {{ formatRelative(t.deadline) }}</small
+                    ></span
+                  >
+                </div></template
+              >
+              <p v-else class="popover-empty">Belum ada deadline dekat.</p>
+            </div>
+            <div v-if="profileOpen" class="popover profile-popover">
+              <strong>{{ user.nama }}</strong><small>{{ user.email }}</small>
+              <hr />
+              <button @click="logout">
+                Keluar dari Teamsync <span>↗</span>
+              </button>
+            </div>
+          </header>
+          <div class="page-content">
+            <section v-if="user.role === 'Mahasiswa' && !group" class="view-section">
+              <div class="page-heading">
+                <div class="date-eyebrow">RUANG KERJA ANDA</div>
+                <h1>Belum bergabung ke kelompok</h1>
+                <p>Buat kelompok baru atau masukkan kode undangan dari kelompok Anda.</p>
+              </div>
+              <article class="panel">
+                <div class="group-choice">
+                  <button @click="openGroupModal('join')"><span>↗</span><strong>Gabung dengan kode</strong><small>Masukkan kode undangan dari ketua kelompok.</small></button>
+                  <button @click="openGroupModal('create')"><span>+</span><strong>Buat kelompok baru</strong><small>Mulai ruang kerja dan undang anggota tim.</small></button>
+                </div>
+              </article>
+            </section>
+            <section v-else-if="currentView === 'overview'" class="view-section">
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">{{ greeting }} <span>✦</span></div>
+                  <h1>
+                    {{ user.nama.split(' ')[0] }}, mari lanjutkan.
+                    <span class="wave">✌</span>
+                  </h1>
+                  <p>Ini ringkasan aktivitas {{ group?.nama_kelompok || 'kelompok Anda' }} hari ini.</p>
+                </div>
+                <button class="button button-primary" @click="openTaskModal()">
+                  <span>+</span> Buat tugas
+                </button>
+              </div>
+              <div class="overview-grid">
+                <div class="overview-main">
+                  <div class="stats-grid">
+                    <article class="stat-card">
+                      <div class="stat-head">
+                        <span>Total tugas</span
+                        ><span class="stat-icon icon-lilac">▤</span>
+                      </div>
+                      <div class="stat-value">
+                        {{ tasks.length }}<small>tugas</small>
+                      </div>
+                      <div class="stat-foot">
+                        <span class="stat-indicator">↗</span> {{ completedCount
+                        }} selesai dari {{ tasks.length }}
+                      </div>
+                    </article>
+                    <article class="stat-card">
+                      <div class="stat-head">
+                        <span>Sedang berjalan</span
+                        ><span class="stat-icon icon-blue">◷</span>
+                      </div>
+                      <div class="stat-value">
+                        {{ inProgressCount }}<small>tugas</small>
+                      </div>
+                      <div class="stat-foot">
+                        Terus bergerak, sedikit demi sedikit
+                      </div>
+                    </article>
+                    <article class="stat-card">
+                      <div class="stat-head">
+                        <span>Deadline dekat</span
+                        ><span class="stat-icon icon-amber">◴</span>
+                      </div>
+                      <div class="stat-value">
+                        {{ upcomingCount }}<small>tugas</small>
+                      </div>
+                      <div class="stat-foot">
+                        <span
+                          :class="upcomingCount ? 'warning-text' : 'stat-indicator'"
+                          >{{ upcomingCount ? 'Perlu perhatian' : 'Semua aman'
+                          }}</span
+                        >
+                      </div>
+                    </article>
+                  </div>
+                  <article class="panel progress-panel">
+                    <div class="panel-heading">
+                      <div>
+                        <span class="section-kicker">PERKEMBANGAN TIM</span>
+                        <h2>Progres keseluruhan</h2>
+                      </div>
+                      <button class="text-button" @click="goTo('tasks')">
+                        Lihat semua tugas <span>→</span>
+                      </button>
+                    </div>
+                    <div class="progress-overview">
+                      <div
+                        class="progress-ring"
+                        :style="{ '--progress': groupProgress + '%' }"
+                      >
+                        <div>
+                          <strong>{{ groupProgress }}<small>%</small></strong
+                          ><span>selesai</span>
+                        </div>
+                      </div>
+                      <div class="progress-detail">
+                        <p>
+                          {{ group?.nama_kelompok || 'Kelompok Anda' }} telah menyelesaikan
+                          <strong
+                            >{{ completedCount }} dari {{ tasks.length }}
+                            tugas.</strong
+                          >
+                          Kerja bagus, lanjutkan kolaborasi kalian.
+                        </p>
+                        <div class="legend-list">
+                          <span
+                            ><i class="legend-dot dot-done"></i> Selesai
+                            <b>{{ completedCount }}</b></span
+                          ><span
+                            ><i class="legend-dot dot-active"></i> Dikerjakan
+                            <b>{{ inProgressCount }}</b></span
+                          ><span
+                            ><i class="legend-dot dot-planned"></i> Terjadwal
+                            <b>{{ todoCount }}</b></span
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                  <article class="panel task-panel">
+                    <div class="panel-heading">
+                      <div>
+                        <span class="section-kicker">RUANG KERJA</span>
+                        <h2>Tugas terbaru</h2>
+                      </div>
+                      <button class="text-button" @click="goTo('tasks')">
+                        Semua tugas <span>→</span>
+                      </button>
+                    </div>
+                    <div class="task-table-wrap">
+                      <table class="task-table">
+                        <thead>
+                          <tr>
+                            <th>NAMA TUGAS</th>
+                            <th>PENANGGUNG JAWAB</th>
+                            <th>DEADLINE</th>
+                            <th>STATUS</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="t in filteredTasks.slice(0, 5)"
+                            :key="t.id"
+                            @click="openTaskDetail(t)"
+                          >
+                            <td>
+                              <span class="task-row-title"
+                                ><i
+                                  :class="['task-category', 'category-' + t.category]"
+                                ></i
+                                >{{ t.judul }}</span
+                              >
+                            </td>
+                            <td>
+                              <span class="assignee-cell"
+                                ><i class="mini-avatar"
+                                  >{{ initials(t.penanggung_jawab) }}</i
+                                >{{ t.penanggung_jawab }}</span
+                              >
+                            </td>
+                            <td>
+                              <span :class="['deadline-cell', deadlineClass(t)]"
+                                >{{ formatShortDate(t.deadline) }}</span
+                              >
+                            </td>
+                            <td>
+                              <span
+                                :class="['status-pill', 'status-' + statusKey(t.status)]"
+                                ><i></i>{{ t.status }}</span
+                              >
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div v-if="!filteredTasks.length" class="empty-inline">
+                        Tidak ada tugas yang cocok dengan pencarian.
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                <div class="overview-side">
+                  <article class="panel deadline-panel">
+                    <div class="panel-heading">
+                      <div>
+                        <span class="section-kicker">JANGAN TERLEWAT</span>
+                        <h2>Deadline terdekat</h2>
+                      </div>
+                      <span class="calendar-emoji">◷</span>
+                    </div>
+                    <div v-if="upcomingTasks.length" class="deadline-list">
+                      <button
+                        v-for="t in upcomingTasks.slice(0, 4)"
+                        :key="t.id"
+                        class="deadline-item"
+                        @click="openTaskDetail(t)"
+                      >
+                        <span class="deadline-date"
+                          ><b>{{ dateParts(t.deadline).day }}</b
+                          ><small
+                            >{{ dateParts(t.deadline).month }}</small
+                          ></span
+                        ><span class="deadline-info"
+                          ><strong>{{ t.judul }}</strong
+                          ><small
+                            >{{ formatRelative(t.deadline) }} · {{
+                            t.penanggung_jawab }}</small
+                          ></span
+                        ><span class="deadline-arrow">↗</span>
+                      </button>
+                    </div>
+                    <div v-else class="empty-card">
+                      <span>✦</span>
+                      <p>Tidak ada deadline dalam 7 hari ke depan.</p>
+                    </div>
+                    <button class="panel-footer-link" @click="goTo('tasks')">
+                      Buka kalender tugas <span>→</span>
+                    </button>
+                  </article>
+                  <article class="panel members-panel">
+                    <div class="panel-heading">
+                      <div>
+                        <span class="section-kicker">KOMPAK BERSAMA</span>
+                        <h2>Anggota kelompok</h2>
+                      </div>
+                      <button class="more-button" @click="goTo('group')">
+                        •••
+                      </button>
+                    </div>
+                    <div class="member-list">
+                      <div
+                        v-for="m in members.slice(0, 5)"
+                        :key="m.id"
+                        class="member-item"
+                      >
+                        <span class="member-avatar" :class="m.color"
+                          >{{ initials(m.nama) }}</span
+                        ><span class="member-info"
+                          ><strong>{{ m.nama }}</strong
+                          ><small>{{ m.peran }}</small></span
+                        ><i class="online-dot"></i>
+                      </div>
+                    </div>
+                    <button class="panel-footer-link" @click="goTo('group')">
+                      Lihat seluruh anggota <span>→</span>
+                    </button>
+                  </article>
+                  <article class="quote-panel">
+                    <span>“</span>
+                    <p>
+                      Tim yang baik bukan tentang siapa paling cepat, tapi
+                      tentang saling menjaga agar semua sampai.
+                    </p>
+                    <small>CATATAN HARI INI</small>
+                  </article>
+                </div>
+              </div>
+            </section>
+
+            <section v-else-if="currentView === 'tasks'" class="view-section">
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">
+                    ATUR DAN SELESAIKAN <span>✦</span>
+                  </div>
+                  <h1>Semua tugas</h1>
+                  <p>
+                    Pantau tanggung jawab dan perkembangan setiap pekerjaan.
+                  </p>
+                </div>
+                <button class="button button-primary" @click="openTaskModal()">
+                  <span>+</span> Buat tugas
+                </button>
+              </div>
+              <div class="task-toolbar">
+                <div class="filter-tabs">
+                  <button
+                    v-for="f in taskFilters"
+                    :key="f"
+                    :class="{ selected: taskFilter === f }"
+                    @click="taskFilter = f"
+                  >
+                    {{ f }}<span>{{ filterCount(f) }}</span>
+                  </button>
+                </div>
+                <label class="sort-select"
+                  >Urutkan
+                  <select v-model="sortTasksBy">
+                    <option value="deadline">Deadline terdekat</option>
+                    <option value="newest">Terbaru dibuat</option>
+                    <option value="title">Nama A sampai Z</option>
+                  </select></label
+                >
+              </div>
+              <div class="task-board">
+                <article
+                  v-for="t in taskViewList"
+                  :key="t.id"
+                  class="task-board-card"
+                  @click="openTaskDetail(t)"
+                >
+                  <div class="board-card-top">
+                    <span
+                      :class="['task-category-label', 'category-label-' + t.category]"
+                      >{{ t.categoryLabel }}</span
+                    ><button
+                      class="card-more"
+                      @click.stop="taskMenuId = taskMenuId === t.id ? null : t.id"
+                    >
+                      •••
+                    </button>
+                    <div v-if="taskMenuId === t.id" class="card-menu">
+                      <button @click.stop="openTaskModal(t)">Edit tugas</button
+                      ><button
+                        class="danger-action"
+                        @click.stop="deleteTask(t)"
+                      >
+                        Hapus tugas
+                      </button>
+                    </div>
+                  </div>
+                  <h3>{{ t.judul }}</h3>
+                  <p>{{ t.deskripsi }}</p>
+                  <div class="board-card-meta">
+                    <span>◷ {{ formatShortDate(t.deadline) }}</span
+                    ><span>◌ {{ t.comments.length }} diskusi</span>
+                  </div>
+                  <div class="board-card-bottom">
+                    <span class="assignee-cell"
+                      ><i class="mini-avatar"
+                        >{{ initials(t.penanggung_jawab) }}</i
+                      >{{ t.penanggung_jawab }}</span
+                    ><select
+                      :value="t.status"
+                      @click.stop
+                      @change="updateStatus(t, $event.target.value)"
+                      :aria-label="'Status ' + t.judul"
+                    >
+                      <option>Selesai</option>
+                      <option>Dikerjakan</option>
+                      <option>Terjadwal</option>
+                    </select>
+                  </div>
+                </article>
+                <button class="add-task-card" @click="openTaskModal()">
+                  <span>+</span> Tambah tugas baru
+                </button>
+                <div v-if="!taskViewList.length" class="empty-card task-empty">
+                  <span>▤</span>
+                  <h3>Belum ada tugas di sini</h3>
+                  <p>Coba ubah filter atau buat tugas baru untuk tim.</p>
+                  <button
+                    class="button button-primary"
+                    @click="openTaskModal()"
+                  >
+                    Buat tugas pertama
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section v-else-if="currentView === 'group'" class="view-section">
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">
+                    SATU TIM, SATU TUJUAN <span>✦</span>
+                  </div>
+                  <h1>{{ group?.nama_kelompok || 'Kelompok' }}</h1>
+                  <p>{{ group?.nama_matkul || 'Ruang kerja kelompok' }}<span v-if="group?.kode_matkul"> · Mata Kuliah {{ group.kode_matkul }}</span></p>
+                </div>
+                <button class="button button-outline" @click="copyInviteCode">
+                  ▣ Salin kode undangan
+                </button>
+              </div>
+              <div class="group-hero">
+                <div class="group-hero-symbol">{{ initials(group?.nama_kelompok || 'K') }}</div>
+                <div class="group-hero-copy">
+                  <span>RUANG KELOMPOK</span>
+                  <h2>{{ group?.nama_kelompok }}</h2>
+                  <p>{{ group?.nama_matkul || 'Ruang kerja bersama' }}</p>
+                </div>
+                <div class="group-hero-progress">
+                  <div
+                    class="progress-ring mini-ring"
+                    :style="{ '--progress': groupProgress + '%' }"
+                  >
+                    <div>
+                      <strong>{{ groupProgress }}<small>%</small></strong>
+                    </div>
+                  </div>
+                  <span>progres tim</span>
+                </div>
+              </div>
+              <div class="group-content-grid">
+                <article class="panel group-members-panel">
+                  <div class="panel-heading">
+                    <div>
+                      <span class="section-kicker"
+                        >ORANG-ORANG DI BALIK PROYEK</span
+                      >
+                      <h2>
+                        Anggota kelompok
+                        <span class="heading-count">{{ members.length }}</span>
+                      </h2>
+                    </div>
+                    <button
+                      class="text-button"
+                      @click="copyInviteCode"
+                    >
+                      + Undang anggota
+                    </button>
+                  </div>
+                  <div class="members-table">
+                    <div v-for="m in members" :key="m.id" class="member-row">
+                      <span class="member-avatar" :class="m.color"
+                        >{{ initials(m.nama) }}</span
+                      ><span class="member-info"
+                        ><strong
+                          >{{ m.nama }}
+                          <i
+                            v-if="m.peran === 'Ketua kelompok'"
+                            class="leader-badge"
+                            >KETUA</i
+                          ></strong
+                        ><small>{{ m.nim }}</small></span
+                      ><span class="member-role">{{ m.peran }}</span
+                      ><span class="member-activity"
+                        ><i class="online-dot"></i> Aktif</span
+                      >
+                    </div>
+                  </div>
+                </article>
+                <article class="panel group-info-panel">
+                  <div class="panel-heading">
+                    <div>
+                      <span class="section-kicker">INFORMASI</span>
+                      <h2>Tentang kelompok</h2>
+                    </div>
+                    <span class="info-icon">◈</span>
+                  </div>
+                  <div class="info-row">
+                    <span>Ketua kelompok</span><strong>{{ group?.nama_ketua || 'Belum ditentukan' }}</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Mata kuliah</span><strong>{{ group?.kode_matkul || group?.nama_matkul || 'Belum dipilih' }}</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Kode undangan</span
+                    ><button class="invite-code" @click="copyInviteCode">
+                      {{ group?.kode_kelompok }} <span>▣</span>
+                    </button>
+                  </div>
+                  <div class="info-row">
+                    <span>Mulai proyek</span><strong>{{ formatDate(group?.tanggal_dibuat?.slice(0, 10)) }}</strong>
+                  </div>
+                  <div class="group-link-box">
+                    <span>↗</span>
+                    <div>
+                      <strong>Dokumen kerja bersama</strong
+                      ><small>Tambahkan tautan Google Docs kelompok.</small>
+                    </div>
+                    <button @click="editGroupLink">
+                      {{ groupLink ? 'Buka' : 'Tambah' }} →
+                    </button>
+                  </div>
+                  <div class="leave-group-actions">
+                  <button class="button button-quiet leave-group-button" @click="leaveGroup">Keluar dari kelompok </button>
+                  </div>
+                </article>
+                <article class="panel announcements-mini">
+                  <div class="panel-heading">
+                    <div>
+                      <span class="section-kicker">KABAR TIM</span>
+                      <h2>Pengumuman terbaru</h2>
+                    </div>
+                    <button class="text-button" @click="goTo('announcements')">
+                      Lihat semua →
+                    </button>
+                  </div>
+                  <div
+                    v-if="announcements.length"
+                    class="announcement-mini-row"
+                  >
+                    <span class="announcement-symbol">✦</span>
+                    <div>
+                      <strong>{{ announcements[0].judul }}</strong>
+                      <p>{{ announcements[0].isi }}</p>
+                      <small
+                        >{{ announcements[0].penulis }} · {{
+                        formatDateTime(announcements[0].createdAt) }}</small
+                      >
+                    </div>
+                  </div>
+                  <div v-else class="empty-inline">
+                    Belum ada pengumuman untuk tim.
+                  </div>
+                </article>
+                <article class="panel group-lecturer-notes">
+                  <div class="panel-heading">
+                    <div><span class="section-kicker">MASUKAN PENGAMPU</span><h2>Catatan dosen</h2></div>
+                  </div>
+                  <div v-if="lecturerNotes.length" class="lecturer-note-list">
+                    <div v-for="note in lecturerNotes" :key="note.id" class="lecturer-note"><p>{{ note.isi }}</p><small>{{ note.dosen }} &middot; {{ formatDateTime(note.waktu) }}</small></div>
+                  </div>
+                  <div v-else class="empty-inline">Belum ada catatan dari dosen pengampu.</div>
+                </article>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'announcements'"
+              class="view-section"
+            >
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">
+                    SATU PENGUMUMAN, SEMUA TAHU <span>✦</span>
+                  </div>
+                  <h1>Papan pengumuman</h1>
+                  <p>
+                    Informasi penting yang perlu diketahui seluruh anggota
+                    kelompok.
+                  </p>
+                </div>
+                <button
+                  class="button button-primary"
+                  @click="announcementModalOpen = true"
+                >
+                  <span>+</span> Tulis pengumuman
+                </button>
+              </div>
+              <div class="announcement-layout">
+                <div class="announcement-feed">
+                  <article
+                    v-for="a in announcements"
+                    :key="a.id"
+                    class="announcement-card panel"
+                  >
+                    <div class="announcement-card-head">
+                      <span class="announcement-symbol">✦</span>
+                      <div>
+                        <span class="section-kicker">PENGUMUMAN KELOMPOK</span>
+                        <h2>{{ a.judul }}</h2>
+                      </div>
+                      <span class="announcement-date"
+                        >{{ formatDateTime(a.createdAt) }}</span
+                      >
+                    </div>
+                    <p>{{ a.isi }}</p>
+                    <div class="announcement-author">
+                      <i class="mini-avatar">{{ initials(a.penulis) }}</i
+                      ><span>{{ a.penulis }}</span
+                      ><span class="dot-separator">·</span
+                      ><span>{{ a.peran }}</span>
+                    </div>
+                  </article>
+                  <div v-if="!announcements.length" class="empty-card">
+                    <span>✦</span>
+                    <h3>Belum ada pengumuman</h3>
+                    <p>Bagikan kabar penting pertama untuk kelompok.</p>
+                  </div>
+                </div>
+                <aside class="panel announce-aside">
+                  <span class="section-kicker">TIPS SINGKAT</span>
+                  <h2>Komunikasi yang jelas bikin tim lebih tenang.</h2>
+                  <p>
+                    Gunakan papan ini untuk menyampaikan perubahan jadwal,
+                    catatan dosen, atau kabar penting proyek.
+                  </p>
+                  <div class="announce-quote">
+                    Tulis hal penting sekali. Semua anggota bisa membacanya
+                    kapan saja.
+                  </div>
+                </aside>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'activity'"
+              class="view-section"
+            >
+              <div class="page-heading">
+                <div class="date-eyebrow">JEJAK KOLABORASI <span>✦</span></div>
+                <h1>Aktivitas kelompok</h1>
+                <p>
+                  Riwayat perubahan dan percakapan yang terjadi di ruang kerja.
+                </p>
+              </div>
+              <div class="activity-layout">
+                <div class="activity-timeline panel">
+                  <div class="timeline-day"><span>HARI INI</span><i></i></div>
+                  <div
+                    v-for="a in activityFeed"
+                    :key="a.id"
+                    class="activity-item"
+                  >
+                    <span class="activity-avatar" :class="a.type"
+                      >{{ a.icon }}</span
+                    >
+                    <div class="activity-body">
+                      <strong>{{ a.title }}</strong>
+                      <p>{{ a.description }}</p>
+                      <small
+                        >{{ a.author }} · {{ formatDateTime(a.time) }}</small
+                      >
+                    </div>
+                  </div>
+                  <div v-if="!activityFeed.length" class="empty-inline">
+                    Aktivitas tim akan muncul di sini.
+                  </div>
+                </div>
+                <aside class="panel activity-summary">
+                  <span class="section-kicker">RINGKASAN AKTIVITAS</span>
+                  <h2>Tim terus bergerak.</h2>
+                  <p>
+                    Perubahan tugas, diskusi, dan pengumuman disimpan agar
+                    perkembangan pekerjaan mudah ditelusuri.
+                  </p>
+                  <div class="summary-number">
+                    {{ activityFeed.length }}<small> aktivitas tercatat</small>
+                  </div>
+                </aside>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'admin-dashboard'"
+              class="view-section admin-view"
+            >
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">PUSAT KENDALI <span>A</span>
+                  </div>
+                  <h1>Dashboard Admin</h1>
+                  <p>Kelola pengguna, mata kuliah, dan kelompok Teamsync.</p>
+                </div>
+                <button class="button button-primary" @click="goTo('admin-users')">
+                  Kelola pengguna <span>→</span>
+                </button>
+              </div>
+              <div class="stats-grid admin-stats-grid">
+                <article class="stat-card">
+                  <div class="stat-head">
+                    <span>Pengguna aktif</span>
+                    <span class="stat-icon icon-lilac">U</span>
+                  </div>
+                  <div class="stat-value">
+                    {{ adminStats.users }}<small>akun</small>
+                  </div>
+                  <div class="stat-foot">Termasuk administrator</div>
+                </article>
+                <article class="stat-card">
+                  <div class="stat-head">
+                    <span>Mata kuliah aktif</span>
+                    <span class="stat-icon icon-blue">M</span>
+                  </div>
+                  <div class="stat-value">
+                    {{ adminStats.courses }}<small>kelas</small>
+                  </div>
+                  <div class="stat-foot">Data akademik Teamsync</div>
+                </article>
+                <article class="stat-card">
+                  <div class="stat-head">
+                    <span>Kelompok aktif</span>
+                    <span class="stat-icon icon-green">K</span>
+                  </div>
+                  <div class="stat-value">
+                    {{ adminStats.groups }}<small>kelompok</small>
+                  </div>
+                  <div class="stat-foot">Ruang kerja terdaftar</div>
+                </article>
+                <article class="stat-card">
+                  <div class="stat-head">
+                    <span>Total tugas</span>
+                    <span class="stat-icon icon-amber">T</span>
+                  </div>
+                  <div class="stat-value">
+                    {{ adminStats.tasks }}<small>tugas</small>
+                  </div>
+                  <div class="stat-foot">Tersimpan di ruang kerja</div>
+                </article>
+              </div>
+              <div class="admin-dashboard-grid">
+                <article class="panel admin-shortcuts">
+                  <div class="panel-heading">
+                  <div>
+                  <span class="section-kicker">PENGELOLAAN</span>
+                  <h2>Akses cepat</h2>
+                  </div>
+                  </div>
+                  <button class="admin-shortcut" @click="goTo('admin-users')">
+                  <span class="admin-shortcut-icon icon-lilac">U</span>
+                  <span>
+                  <strong>Kelola pengguna</strong>
+                  <small>Tambah akun, ubah role, dan atur status.</small>
+                  </span>
+                  <b>→</b>
+                  </button>
+                  <button class="admin-shortcut" @click="goTo('admin-courses')">
+                  <span class="admin-shortcut-icon icon-blue">M</span>
+                  <span>
+                  <strong>Kelola mata kuliah</strong>
+                  <small>Atur kode kelas dan dosen pengampu.</small>
+                  </span>
+                  <b>→</b>
+                  </button>
+                  <button class="admin-shortcut" @click="goTo('admin-groups')">
+                  <span class="admin-shortcut-icon icon-green">K</span>
+                  <span>
+                  <strong>Kelola kelompok</strong>
+                  <small>Atur ruang kerja dan data kelompok.</small>
+                  </span>
+                  <b>→</b>
+                  </button>
+                </article>
+                <article class="panel admin-note">
+                  <span class="section-kicker">RUANG ADMINISTRASI</span>
+                  <h2>Semua tetap tertata.</h2>
+                  <p>Gunakan menu administrasi untuk memperbarui data Teamsync. Menonaktifkan data akan mempertahankan catatan yang sudah ada.</p>
+                  <div class="admin-note-footer">
+                  <span>TEAMSYNC</span>
+                  <b>ADMIN</b>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'admin-users'"
+              class="view-section admin-view"
+            >
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">AKSES DAN AKUN <span>U</span>
+                  </div>
+                  <h1>Kelola pengguna</h1>
+                  <p>Tambah akun, ubah role, dan atur status akses.</p>
+                </div>
+                <button
+                  class="button button-primary"
+                  @click="openAdminModal('user')"
+                >
+                  <span>+</span> Tambah pengguna
+                </button>
+              </div>
+              <div class="admin-record-list">
+                <article
+                  v-for="account in adminUsers"
+                  :key="account.id"
+                  class="panel admin-record"
+                >
+                  <div class="admin-record-main">
+                    <span class="admin-avatar">
+                      {{ initials(account.nama) }}
+                    </span>
+                    <div class="admin-record-copy">
+                      <strong>{{ account.nama }}</strong>
+                      <small>{{ account.email }}</small>
+                    </div>
+                    <span class="role-chip">{{ account.role }}</span>
+                    <span
+                      :class="['admin-status', account.aktif ? 'is-active' : 'is-inactive']"
+                    >{{ account.aktif ? 'Aktif' : 'Nonaktif' }}</span>
+                  </div>
+                  <div class="admin-record-actions">
+                    <button
+                      class="button button-outline"
+                      @click="openAdminModal('user', account)"
+                    >Edit</button>
+                    <button
+                      class="button button-quiet"
+                      :disabled="account.email === user.email"
+                      @click="toggleAdminStatus('user', account)"
+                    >{{ account.aktif ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                  </div>
+                </article>
+                <div v-if="!adminUsers.length" class="empty-card">
+                  <p>Belum ada pengguna.</p>
+                </div>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'admin-courses'"
+              class="view-section admin-view"
+            >
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">DATA AKADEMIK <span>M</span>
+                  </div>
+                  <h1>Kelola mata kuliah</h1>
+                  <p>Atur kelas dan dosen pengampu.</p>
+                </div>
+                <button
+                  class="button button-primary"
+                  @click="openAdminModal('course')"
+                >
+                  <span>+</span> Tambah mata kuliah
+                </button>
+              </div>
+              <div class="admin-record-list">
+                <article
+                  v-for="course in adminCourses"
+                  :key="course.id"
+                  class="panel admin-record"
+                >
+                  <div class="admin-record-main">
+                  <span class="admin-avatar course-avatar">MK</span>
+                  <div class="admin-record-copy">
+                  <strong>{{ course.nama }}</strong>
+                  <small>{{ course.kode }} · {{ course.dosen || 'Dosen belum ditentukan' }}</small>
+                  </div>
+                  <span :class="['admin-status', course.aktif ? 'is-active' : 'is-inactive']">{{ course.aktif ? 'Aktif' : 'Nonaktif' }}</span>
+                  </div>
+                  <div class="admin-record-actions">
+                  <button class="button button-outline" @click="openAdminModal('course', course)">Edit</button>
+                  <button class="button button-quiet" @click="toggleAdminStatus('course', course)">{{ course.aktif ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                  </div>
+                </article>
+                <div v-if="!adminCourses.length" class="empty-card">
+                  <p>Belum ada mata kuliah.</p>
+                </div>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'admin-groups'"
+              class="view-section admin-view"
+            >
+              <div class="page-heading heading-row">
+                <div>
+                  <div class="date-eyebrow">RUANG KOLABORASI <span>K</span>
+                  </div>
+                  <h1>Kelola kelompok</h1>
+                  <p>Atur ruang kerja dan informasi kelompok.</p>
+                </div>
+                <button
+                  class="button button-primary"
+                  @click="openAdminModal('group')"
+                >
+                  <span>+</span> Tambah kelompok
+                </button>
+              </div>
+              <div class="admin-record-list">
+                <article
+                  v-for="group in adminGroups"
+                  :key="group.id"
+                  class="panel admin-record"
+                >
+                  <div class="admin-record-main">
+                  <span class="admin-avatar group-avatar">{{ initials(group.nama) }}</span>
+                  <div class="admin-record-copy">
+                  <strong>{{ group.nama }}</strong>
+                  <small>{{ group.mataKuliah }} · {{ group.anggota }} anggota · {{ group.kode }}</small>
+                  </div>
+                  <span :class="['admin-status', group.aktif ? 'is-active' : 'is-inactive']">{{ group.aktif ? 'Aktif' : 'Nonaktif' }}</span>
+                  </div>
+                  <div class="admin-record-actions">
+                  <button class="button button-outline" @click="openAdminModal('group', group)">Edit</button>
+                  <button class="button button-quiet" @click="toggleAdminStatus('group', group)">{{ group.aktif ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                  </div>
+                </article>
+                <div v-if="!adminGroups.length" class="empty-card">
+                  <p>Belum ada kelompok.</p>
+                </div>
+              </div>
+            </section>
+
+            <section
+              v-else-if="currentView === 'lecturer'"
+              class="view-section"
+            >
+              <div class="page-heading heading-row">
+                <div>
+
+                  <div class="date-eyebrow">KELAS YANG ANDA AMPU</div>
+
+                  <h1>Pemantauan dosen</h1>
+
+                  <p>Tinjau progres tugas dan anggota di setiap kelompok kelas, lalu kirim catatan langsung ke kelompok.</p>
+
+                </div>
+                <span class="role-chip">MODE DOSEN</span>
+              </div>
+              <div v-if="lecturerGroups.length" class="lecturer-toolbar">
+                <label>Kelompok yang dipantau
+                  <select v-model="selectedLecturerGroupId">
+                    <option v-for="group in lecturerGroups" :key="group.id" :value="group.id">{{ group.nama_kelompok }} &middot; {{ group.kode_matkul }}</option>
+                  </select>
+                </label>
+                <button class="button button-outline" @click="loadLecturerData">Muat ulang</button>
+              </div>
+              <div v-if="lecturerLoading" class="empty-card"><p>Memuat kelompok dan tugas...</p></div>
+              <div v-else-if="!lecturerGroups.length" class="empty-card lecturer-empty">
+                <span>D</span>
+                <h3>Belum ada kelompok yang ditugaskan</h3>
+                <p>Minta Admin menghubungkan akun Dosen Anda ke mata kuliah. Setelah ditugaskan, kelompok dan progresnya tampil di sini.</p>
+              </div>
+              <template v-if="selectedLecturerGroup">
+                <div class="lecturer-summary-grid">
+                  <article class="stat-card">
+                    <div class="stat-head"><span>Kelompok diajar</span><span class="stat-icon icon-lilac">K</span></div>
+                    <div class="stat-value">{{ lecturerGroups.length }}<small>kelompok</small></div>
+                    <div class="stat-foot">{{ lecturerCourseCount }} mata kuliah aktif</div>
+                  </article>
+                  <article class="stat-card">
+                    <div class="stat-head"><span>Tugas kelompok ini</span><span class="stat-icon icon-blue">T</span></div>
+                    <div class="stat-value">{{ lecturerSelectedTasks.length }}<small>tugas</small></div>
+                    <div class="stat-foot">{{ selectedLecturerGroup.jumlah_anggota }} anggota terdaftar</div>
+                  </article>
+                  <article class="stat-card">
+                    <div class="stat-head"><span>Progres kelompok</span><span class="stat-icon icon-amber">%</span></div>
+                    <div class="stat-value">{{ lecturerProgress }}<small>%</small></div>
+                    <div class="stat-foot">Rata-rata kelas {{ lecturerClassProgress }}%</div>
+                  </article>
+                </div>
+                <article class="panel lecturer-panel">
+                  <div class="panel-heading">
+                    <div><span class="section-kicker">{{ selectedLecturerGroup.kode_matkul }} &middot; {{ selectedLecturerGroup.nama_matkul }}</span><h2>{{ selectedLecturerGroup.nama_kelompok }}</h2></div>
+                    <span class="status-pill status-active"><i></i> Aktif</span>
+                  </div>
+                  <div class="lecturer-progress-row">
+                    <div class="lecturer-progress-copy"><strong>Progres penyelesaian</strong><span>{{ lecturerCompletedCount }} dari {{ lecturerSelectedTasks.length }} tugas selesai</span></div>
+                    <div class="lecturer-progress-bar"><span :style="{width: lecturerProgress + '%'}"></span></div>
+                    <b>{{ lecturerProgress }}%</b>
+                  </div>
+                  <div v-if="lecturerSelectedTasks.length" class="lecturer-task-list">
+                    <div class="lecturer-task-head"><span>TUGAS</span><span>PENANGGUNG JAWAB</span><span>DEADLINE</span><span>STATUS</span><span>KATEGORI</span></div>
+                    <div v-for="task in lecturerSelectedTasks" :key="task.id" class="lecturer-task-row">
+                      <strong>{{ task.judul }}</strong><span>{{ task.penanggung_jawab || 'Belum ditentukan' }}</span><span>{{ task.deadline ? formatShortDate(task.deadline) : '&mdash;' }}</span>
+                      <span :class="['status-pill', 'status-' + statusKey(task.status)]"><i></i>{{ task.status }}</span><span>{{ task.categoryLabel || task.category }}</span>
+                    </div>
+                  </div>
+                  <div v-else class="empty-inline lecturer-task-empty">Belum ada tugas di kelompok ini.</div>
+                </article>
+                <div class="lecturer-detail-grid">
+                  <article class="panel lecturer-members">
+                    <div class="panel-heading"><div><span class="section-kicker">ANGGOTA TIM</span><h2>{{ selectedLecturerGroup.members.length }} mahasiswa</h2></div></div>
+                    <div v-if="selectedLecturerGroup.members.length" class="lecturer-member-list">
+                      <div v-for="member in selectedLecturerGroup.members" :key="member.id" class="lecturer-member-row"><span class="member-avatar" :class="member.color">{{ initials(member.nama) }}</span><span><strong>{{ member.nama }}</strong><small>{{ member.peran }}<span v-if="member.nim"> &middot; {{ member.nim }}</span></small></span></div>
+                    </div>
+                    <div v-else class="empty-inline">Belum ada anggota terdaftar.</div>
+                  </article>
+                  <article class="panel lecturer-notes">
+                    <div class="panel-heading"><div><span class="section-kicker">CATATAN DOSEN</span><h2>Masukan untuk kelompok</h2></div></div>
+                    <div v-if="selectedLecturerGroup.notes.length" class="lecturer-note-list"><div v-for="note in selectedLecturerGroup.notes" :key="note.id" class="lecturer-note"><p>{{ note.isi }}</p><small>{{ note.dosen }} &middot; {{ formatDateTime(note.waktu) }}</small></div></div>
+                    <div v-else class="empty-inline">Belum ada catatan untuk kelompok ini.</div>
+                  </article>
+                </div>
+                <article class="panel lecturer-feedback">
+                  <span class="feedback-icon">N</span><div><strong>Catatan untuk {{ selectedLecturerGroup.nama_kelompok }}</strong><p>Masukan disimpan untuk kelompok terpilih dan dapat ditinjau kembali.</p></div>
+                  <button class="button button-outline" @click="feedbackModalOpen = true">Tulis catatan &rarr;</button>
+                </article>
+              </template>
+            </section>
+          </div>
+          <footer class="app-footer">
+            <span>TEAMSYNC <i>·</i> KELOMPOK B</span
+            ><span>Dibuat untuk belajar dan bertumbuh bersama <b>✦</b></span>
+          </footer>
+        </main>
+
+        <div
+          v-if="adminModalOpen"
+          class="modal-backdrop"
+          @click.self="closeAdminModal"
+        >
+          <section class="modal-card compact-modal">
+            <div class="modal-heading">
+              <div>
+                <span class="section-kicker">PENGELOLAAN ADMIN</span>
+                <h2>{{ adminEditingId ? 'Edit' : 'Tambah' }} {{ adminModalType === 'user' ? 'pengguna' : adminModalType === 'course' ? 'mata kuliah' : 'kelompok' }}</h2>
+                <p>Lengkapi informasi yang diperlukan lalu simpan perubahan.</p>
+              </div>
+              <button class="modal-close" @click="closeAdminModal" aria-label="Tutup">×</button>
+            </div>
+            <form class="modal-form" @submit.prevent="saveAdminRecord">
+              <label>
+                {{ adminModalType === 'course' ? 'Nama mata kuliah' : adminModalType === 'group' ? 'Nama kelompok' : 'Nama lengkap' }}
+                <input v-model.trim="adminForm.nama" required placeholder="Masukkan nama">
+              </label>
+              <template v-if="adminModalType === 'user'">
+                <label>Email<input v-model.trim="adminForm.email" type="email" autocomplete="email" required placeholder="nama@email.com">
+              </label>
+                <label>
+                  Kata sandi <span class="label-optional">{{ adminEditingId ? 'KOSONGKAN JIKA TIDAK DIUBAH' : 'MINIMAL 6 KARAKTER' }}</span>
+                  <input v-model="adminForm.password" type="password" :required="!adminEditingId" minlength="6" :placeholder="adminEditingId ? 'Opsional' : 'Buat kata sandi'">
+                </label>
+                <label>Role<select v-model="adminForm.role">
+              <option>Mahasiswa</option>
+              <option>Dosen</option>
+              <option>Admin</option>
+              </select>
+              </label>
+              </template>
+              <template v-else-if="adminModalType === 'course'">
+                <div class="form-two-col">
+                  <label>Kode mata kuliah<input v-model.trim="adminForm.kode" required placeholder="Contoh: STSI4440">
+              </label>
+                  <label>Dosen pengampu<select v-model="adminForm.dosen">
+                    <option value="">Pilih dosen pengampu</option>
+                    <option v-if="adminForm.dosen && !adminLecturerIds.includes(adminForm.dosen)" :value="adminForm.dosen">{{ adminForm.dosen }} (belum terhubung)</option>
+                    <option v-for="lecturer in adminLecturers" :key="lecturer.userId" :value="String(lecturer.userId)">{{ lecturer.nama }}</option>
+                  </select></label>
+                </div>
+              </template>
+              <template v-else>
+                <div class="form-two-col">
+                  <label>Kode kelompok<input v-model.trim="adminForm.kode" placeholder="Boleh dikosongkan">
+              </label>
+                  <label>Jumlah anggota<input v-model.number="adminForm.anggota" type="number" min="0" required>
+              </label>
+                </div>
+                <label>Mata kuliah<input v-model.trim="adminForm.mataKuliah" placeholder="Contoh: STSI4440 / Capstone Project">
+              </label>
+              </template>
+              <div class="modal-actions">
+                <button type="button" class="button button-quiet" @click="closeAdminModal">Batal</button>
+                <button type="submit" class="button button-primary">Simpan perubahan <span>→</span>
+              </button>
+              </div>
+            </form>
+          </section>
+        </div>
+        <div
+          v-if="taskModalOpen"
+          class="modal-backdrop"
+          @click.self="closeTaskModal"
+        >
+          <section class="modal-card">
+            <div class="modal-heading">
+              <div>
+                <span class="section-kicker"
+                  >{{ editingTaskId ? 'PERBARUI PEKERJAAN' : 'TAMBAH PEKERJAAN'
+                  }}</span
+                >
+                <h2>{{ editingTaskId ? 'Edit tugas' : 'Buat tugas baru' }}</h2>
+                <p>
+                  Jelaskan pekerjaan agar setiap anggota tahu langkah
+                  berikutnya.
+                </p>
+              </div>
+              <button class="modal-close" @click="closeTaskModal">×</button>
+            </div>
+            <form @submit.prevent="saveTask" class="modal-form">
+              <label
+                >Nama tugas<input
+                  v-model.trim="taskForm.judul"
+                  placeholder="Contoh: Rancangan basis data"
+                  required /></label
+              ><label
+                >Deskripsi<textarea
+                  v-model.trim="taskForm.deskripsi"
+                  rows="3"
+                  placeholder="Apa yang perlu dikerjakan?"
+                  required
+                ></textarea>
+              </label>
+              <div class="form-two-col">
+                <label
+                  >Penanggung jawab<select
+                    v-model="taskForm.penanggung_jawab"
+                    required
+                  >
+                    <option disabled value="">Pilih anggota</option>
+                    <option v-for="m in members" :key="m.id">
+                      {{ m.nama }}
+                    </option>
+                  </select></label
+                ><label
+                  >Deadline waktu<input
+                    v-model="taskForm.deadline"
+                    type="date"
+                    required
+                /></label>
+              </div>
+              <div class="form-two-col">
+                <label
+                  >Kategori<select v-model="taskForm.category">
+                    <option value="design">Perancangan</option>
+                    <option value="research">Riset</option>
+                    <option value="writing">Dokumentasi</option>
+                    <option value="presentation">Presentasi</option>
+                  </select></label
+                ><label
+                  >Status<select v-model="taskForm.status">
+                    <option>Terjadwal</option>
+                    <option>Dikerjakan</option>
+                    <option>Selesai</option>
+                  </select></label
+                >
+              </div>
+              <label
+                >Tautan dokumen kerja
+                <span class="label-optional">OPSIONAL</span
+                ><input
+                  v-model.trim="taskForm.documentLink"
+                  type="url"
+                  placeholder="https://docs.google.com/..."
+              /></label>
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="button button-quiet"
+                  @click="closeTaskModal"
+                >
+                  Batal</button
+                ><button type="submit" class="button button-primary">
+                  {{ editingTaskId ? 'Simpan perubahan' : 'Buat tugas' }}
+                  <span>→</span>
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div
+          v-if="detailTask"
+          class="detail-backdrop"
+          @click.self="closeTaskDetail()"
+        >
+          <aside class="detail-drawer">
+            <div class="drawer-top">
+              <span class="section-kicker">DETAIL PEKERJAAN</span
+              ><button
+                type="button"
+                class="modal-close"
+                @click.stop.prevent="detailTaskId = null"
+              >
+                ×
+              </button>
+            </div>
+            <span
+              :class="['task-category-label', 'category-label-' + detailTask.category]"
+              >{{ detailTask.categoryLabel }}</span
+            >
+            <h2>{{ detailTask.judul }}</h2>
+            <p class="drawer-description">{{ detailTask.deskripsi }}</p>
+            <div class="detail-properties">
+              <div>
+                <span>PENANGGUNG JAWAB</span
+                ><b
+                  ><i class="mini-avatar"
+                    >{{ initials(detailTask.penanggung_jawab) }}</i
+                  >{{ detailTask.penanggung_jawab }}</b
+                >
+              </div>
+              <div>
+                <span>DEADLINE WAKTU</span
+                ><b>◷ {{ formatDate(detailTask.deadline) }}</b>
+              </div>
+              <div>
+                <span>STATUS</span
+                ><select
+                  :value="detailTask.status"
+                  @change="updateStatus(detailTask, $event.target.value)"
+                >
+                  <option>Selesai</option>
+                  <option>Dikerjakan</option>
+                  <option>Terjadwal</option>
+                </select>
+              </div>
+              <div>
+                <span>DOKUMEN KERJA</span
+                ><b v-if="detailTask.documentLink"
+                  ><a
+                    :href="detailTask.documentLink"
+                    target="_blank"
+                    rel="noopener"
+                    >Buka dokumen ↗</a
+                  ></b
+                ><b v-else class="muted">Belum ditambahkan</b>
+              </div>
+            </div>
+            <form class="submission-form" @submit.prevent="saveSubmission">
+              <label
+                >KUMPULKAN HASIL
+                <span class="label-optional">TAUTAN</span></label
+              >
+              <div class="submission-input">
+                <input
+                  v-model.trim="submissionInput"
+                  type="url"
+                  placeholder="Tempel tautan dokumen / hasil tugas"
+                /><button type="submit">Simpan ↗</button>
+              </div>
+              <small v-if="detailTask.submissionLink"
+                >Terakhir dikumpulkan: {{ formatDateTime(detailTask.submittedAt)
+                }}</small
+              >
+            </form>
+            <div class="discussion-section">
+              <div class="discussion-heading">
+                <h3>Diskusi</h3>
+                <span>{{ detailTask.comments.length }}</span>
+              </div>
+              <div class="comment-list">
+                <div
+                  v-for="c in detailTask.comments"
+                  :key="c.id"
+                  class="comment-item"
+                >
+                  <i class="mini-avatar">{{ initials(c.author) }}</i>
+                  <div>
+                    <strong
+                      >{{ c.author }}
+                      <small>{{ formatDateTime(c.createdAt) }}</small></strong
+                    >
+                    <p>{{ c.text }}</p>
+                  </div>
+                </div>
+                <div v-if="!detailTask.comments.length" class="empty-inline">
+                  Belum ada diskusi. Mulai percakapan di sini.
+                </div>
+              </div>
+              <form class="comment-form" @submit.prevent="addComment">
+                <input
+                  v-model.trim="commentInput"
+                  placeholder="Tulis komentar..."
+                  required
+                /><button type="submit" aria-label="Kirim komentar">↑</button>
+              </form>
+            </div>
+            <div class="drawer-actions">
+              <button
+                class="button button-outline"
+                @click="openTaskModal(detailTask); closeTaskDetail()"
+              >
+                Edit tugas</button
+              ><button class="button button-quiet" @click="closeTaskDetail()">
+                Selesai
+              </button>
+            </div>
+          </aside>
+        </div>
+
+        <div
+          v-if="announcementModalOpen"
+          class="modal-backdrop"
+          @click.self="announcementModalOpen = false"
+        >
+          <section class="modal-card compact-modal">
+            <div class="modal-heading">
+              <div>
+                <span class="section-kicker">BAGIKAN KE TIM</span>
+                <h2>Tulis pengumuman</h2>
+                <p>Pastikan informasi penting tidak terlewat.</p>
+              </div>
+              <button
+                class="modal-close"
+                @click="announcementModalOpen = false"
+              >
+                ×
+              </button>
+            </div>
+            <form class="modal-form" @submit.prevent="publishAnnouncement">
+              <label
+                >Judul<input
+                  v-model.trim="announcementForm.judul"
+                  placeholder="Contoh: Perubahan jadwal diskusi"
+                  required /></label
+              ><label
+                >Isi pengumuman<textarea
+                  v-model.trim="announcementForm.isi"
+                  rows="5"
+                  placeholder="Tulis informasi untuk anggota kelompok..."
+                  required
+                ></textarea>
+              </label>
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="button button-quiet"
+                  @click="announcementModalOpen = false"
+                >
+                  Batal</button
+                ><button type="submit" class="button button-primary">
+                  Terbitkan →
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+        <div
+          v-if="groupModalOpen"
+          class="modal-backdrop"
+          @click.self="groupModalOpen = false"
+        >
+          <section class="modal-card compact-modal">
+            <div class="modal-heading">
+              <div>
+                <span class="section-kicker">RUANG KERJA BERSAMA</span>
+                <h2>Gabung atau buat kelompok</h2>
+                <p>
+                  Kelompok menyimpan tugas, anggota, dan diskusi tim di satu
+                  tempat.
+                </p>
+              </div>
+              <button class="modal-close" @click="groupModalOpen = false">
+                ×
+              </button>
+            </div>
+            <div v-if="groupModalMode === 'choose'" class="group-choice">
+              <button
+                @click="groupModalMode = 'join'"
+              >
+                <span>↗</span><strong>Gabung dengan kode</strong
+                ><small
+                  >Masukkan kode undangan dari ketua kelompok.</small
+                ></button
+              ><button
+                @click="groupModalMode = 'create'"
+              >
+                <span>+</span><strong>Buat kelompok baru</strong
+                ><small>Mulai ruang kerja dan undang anggota tim.</small>
+              </button>
+            </div>
+            <form v-else-if="groupModalMode === 'join'" class="modal-form" @submit.prevent="joinGroup">
+              <label>Kode undangan<input v-model.trim="groupCodeInput" required maxlength="50" placeholder="Contoh: TS-B51-2026" /></label>
+              <div class="modal-actions"><button type="button" class="button button-quiet" @click="groupModalMode = 'choose'">Kembali</button><button type="submit" class="button button-primary">Gabung kelompok</button></div>
+            </form>
+            <form v-else class="modal-form" @submit.prevent="createGroup">
+              <label>Nama kelompok<input v-model.trim="groupForm.nama" required maxlength="100" placeholder="Contoh: Kelompok Proyek A" /></label>
+              <label>Mata kuliah<select v-model="groupForm.id_matkul"><option value="">Pilih mata kuliah (opsional)</option><option v-for="course in groupCourses" :key="course.id_matkul" :value="String(course.id_matkul)">{{ course.kode_matkul }} · {{ course.nama_matkul }}</option></select></label>
+              <div class="modal-actions"><button type="button" class="button button-quiet" @click="groupModalMode = 'choose'">Kembali</button><button type="submit" class="button button-primary">Buat kelompok</button></div>
+            </form>
+            <div v-if="groupModalMode === 'choose'" class="modal-actions">
+              <button
+                class="button button-quiet"
+                @click="groupModalOpen = false"
+              >
+                Tutup
+              </button>
+            </div>
+          </section>
+        </div>
+        <div
+          v-if="groupLinkModalOpen"
+          class="modal-backdrop"
+          @click.self="groupLinkModalOpen = false"
+        >
+          <section class="modal-card compact-modal">
+            <div class="modal-heading">
+              <div>
+                <span class="section-kicker">DOKUMEN KERJA BERSAMA</span>
+                <h2>Tambahkan tautan</h2>
+                <p>Simpan tautan dokumen bersama yang digunakan kelompok.</p>
+              </div>
+              <button class="modal-close" @click="groupLinkModalOpen = false">
+                ×
+              </button>
+            </div>
+            <form class="modal-form" @submit.prevent="saveGroupLink">
+              <label
+                >URL dokumen<input
+                  v-model.trim="groupLinkInput"
+                  type="url"
+                  placeholder="https://docs.google.com/..."
+                  required
+              /></label>
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="button button-quiet"
+                  @click="groupLinkModalOpen = false"
+                >
+                  Batal</button
+                ><button type="submit" class="button button-primary" :disabled="savingGroupLink">
+                  {{ savingGroupLink ? 'Menyimpan…' : 'Simpan tautan →' }}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+        <div
+          v-if="feedbackModalOpen"
+          class="modal-backdrop"
+          @click.self="feedbackModalOpen = false"
+        >
+          <section class="modal-card compact-modal">
+            <div class="modal-heading">
+              <div>
+                <span class="section-kicker">CATATAN DOSEN</span>
+                <h2>Kirim masukan</h2>
+                <p>Catatan akan terlihat oleh anggota {{ selectedLecturerGroup?.nama_kelompok || 'kelompok' }}.</p>
+              </div>
+              <button class="modal-close" @click="feedbackModalOpen = false">
+                ×
+              </button>
+            </div>
+            <form class="modal-form" @submit.prevent="sendFeedback">
+              <label
+                >Catatan<textarea
+                  v-model.trim="feedbackInput"
+                  rows="5"
+                  placeholder="Tuliskan apresiasi atau saran perbaikan..."
+                  required
+                ></textarea>
+              </label>
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="button button-quiet"
+                  @click="feedbackModalOpen = false"
+                >
+                  Batal</button
+                ><button type="submit" class="button button-primary">
+                  Kirim catatan →
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+        <div v-if="toast" class="toast" :class="'toast-' + toast.type">
+          {{ toast.message }}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

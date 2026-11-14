@@ -1,0 +1,144 @@
+%% TeamSync ERD. ADMIN_COURSES and ADMIN_GROUPS are standalone legacy tables in the supplied dump.
+%% Nullable FKs: MATA_KULIAH.id_dosen; KELOMPOK.id_matkul/id_ketua; TUGAS.kelompok_id/id_pembuat/id_pic; AKTIVITAS.id_user/id_tugas.
+%% Composite unique key: ANGGOTA_KELOMPOK(id_kelompok, id_user); neither FK is individually unique.
+erDiagram
+    USERS {
+        int id PK
+        varchar nama
+        varchar email UK
+        varchar nim
+        varchar password
+        enum role
+        tinyint status_aktif
+        timestamp created_at
+        tinyint aktif
+    }
+    MATA_KULIAH {
+        int id_matkul PK
+        varchar nama_matkul
+        varchar kode_matkul UK
+        int id_dosen FK
+        tinyint status_aktif
+        timestamp created_at
+        varchar dosen_label
+    }
+    KELOMPOK {
+        int id PK
+        varchar nama_kelompok
+        varchar kode_kelompok UK
+        int id_matkul FK
+        int id_ketua FK
+        varchar tautan_dokumen
+        tinyint status_aktif
+        timestamp tanggal_dibuat
+        int jumlah_anggota
+    }
+    ANGGOTA_KELOMPOK {
+        int id_anggota PK
+        int id_kelompok FK
+        int id_user FK
+        enum peran
+        timestamp tanggal_bergabung
+    }
+    TUGAS {
+        int id PK
+        int kelompok_id FK
+        varchar judul
+        text deskripsi
+        varchar penanggung_jawab
+        date deadline
+        enum status
+        int id_pembuat FK
+        int id_pic FK
+        enum kategori
+        timestamp created_at
+        timestamp updated_at
+    }
+    KOMENTAR {
+        int id_komentar PK
+        int id_tugas FK
+        int id_user FK
+        text isi_komentar
+        timestamp waktu
+    }
+    FILE_TUGAS {
+        int id_file PK
+        int id_tugas FK
+        int id_uploader FK
+        enum jenis_file
+        varchar nama_file
+        varchar tautan
+        timestamp waktu_upload
+    }
+    AKTIVITAS {
+        int id_aktivitas PK
+        int id_kelompok FK
+        int id_user FK
+        int id_tugas FK
+        varchar jenis
+        varchar judul
+        text deskripsi
+        timestamp waktu
+    }
+    CATATAN_DOSEN {
+        int id_catatan PK
+        int id_kelompok FK
+        int id_dosen FK
+        text isi
+        timestamp waktu
+    }
+    PENGUMUMAN {
+        int id_pengumuman PK
+        int id_kelompok FK
+        int id_penulis FK
+        varchar judul
+        text isi
+        timestamp created_at
+    }
+    NOTIFIKASI {
+        int id_notifikasi PK
+        int id_user FK
+        varchar judul
+        text pesan
+        tinyint status_baca
+        timestamp waktu
+    }
+    ADMIN_COURSES {
+        int id PK
+        varchar kode UK
+        varchar nama
+        varchar dosen
+        tinyint aktif
+        timestamp created_at
+    }
+    ADMIN_GROUPS {
+        int id PK
+        varchar nama
+        varchar kode UK
+        varchar mata_kuliah
+        int anggota
+        tinyint aktif
+        timestamp created_at
+    }
+    USERS o|--o{ MATA_KULIAH : mengampu
+    MATA_KULIAH o|--o{ KELOMPOK : digunakan_oleh
+    USERS o|--o{ KELOMPOK : ketua
+    KELOMPOK ||--o{ ANGGOTA_KELOMPOK : memiliki
+    USERS ||--o{ ANGGOTA_KELOMPOK : terdaftar
+    KELOMPOK o|--o{ TUGAS : memiliki
+    USERS o|--o{ TUGAS : pembuat
+    USERS o|--o{ TUGAS : pic
+    TUGAS ||--o{ KOMENTAR : memiliki
+    USERS ||--o{ KOMENTAR : menulis
+    TUGAS ||--o{ FILE_TUGAS : memiliki
+    USERS ||--o{ FILE_TUGAS : mengunggah
+    KELOMPOK ||--o{ AKTIVITAS : mencatat
+    USERS o|--o{ AKTIVITAS : melakukan
+    TUGAS o|--o{ AKTIVITAS : terkait
+    KELOMPOK ||--o{ CATATAN_DOSEN : menerima
+    USERS ||--o{ CATATAN_DOSEN : menulis
+    KELOMPOK ||--o{ PENGUMUMAN : menerima
+    USERS ||--o{ PENGUMUMAN : menulis
+    USERS ||--o{ NOTIFIKASI : menerima
+
+%% Composite unique key: ANGGOTA_KELOMPOK(id_kelompok, id_user).
